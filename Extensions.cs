@@ -67,7 +67,7 @@ namespace AoC_2024;
             return str.Split(separators, StringSplitOptions.RemoveEmptyEntries);
         }
 
-        public static string[] SplitLines(this string str, params string[] separators)
+        public static string[] SplitLines(this string str)
         {
             return str.SplitEmpty("\r", "\n");
         }
