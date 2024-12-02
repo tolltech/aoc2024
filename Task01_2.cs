@@ -15,7 +15,7 @@ public class Task01_2
 3   9
 3   3",
         31)]
-    [TestCase(@"Task01.txt", 0)]
+    [TestCase(@"Task01.txt", 20373490)]
     public void Task(string input, long expected)
     {
         input = File.Exists(input) ? File.ReadAllText(input) : input;
