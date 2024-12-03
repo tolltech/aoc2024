@@ -32,13 +32,4 @@ public class Task03
 
         result.Should().Be(expected);
     }
-
-    private static bool CheckSafe(int delta, int? prevDelta)
-    {
-        if (Math.Abs(delta) > 3) return false;
-        if (delta == 0) return false;
-        if (prevDelta.HasValue && Math.Sign(prevDelta.Value) != Math.Sign(delta)) return false;
-
-        return true;
-    }
 }
