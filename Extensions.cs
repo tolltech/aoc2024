@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Runtime.Intrinsics.Arm;
+using System.Text;
 
 namespace AoC_2024;
 
@@ -89,6 +90,33 @@ namespace AoC_2024;
             }
         }
         
+        public static IEnumerable<T[]> GetAllNeighbours<T>(T[][] map,
+            (int Row, int Col) src, int depth)
+        {
+            for (var i = -1; i <= 1; ++i)
+            for (var j = -1; j <= 1; j++)
+            {
+                if (j == 0 && i == 0) continue;
+
+                var result = new List<T>(depth);
+
+                for (var d = 0; d < depth; ++d)
+                {
+                    var newI = i + i * d;
+                    var newJ = j + j * d;
+                    
+                    var row = src.Row + newI;
+                    var col = src.Col + newJ;
+
+                    if (row < 0 || col < 0 || row >= map.Length || map.Length == 0 || col >= map[0].Length) continue;
+                    
+                    result.Add(map[row][col]);
+                }
+
+                yield return result.ToArray();
+            }
+        }
+        
         public static IEnumerable<(T Item, (int Row, int Col) Index)> GetVerticalHorizontalNeighbours<T>(T[][] map,
             (int Row, int Col) src)
         {
@@ -97,6 +125,24 @@ namespace AoC_2024;
             {
                 if (j == 0 && i == 0) continue;
                 if (j != 0 && i != 0) continue;
+
+                var row = src.Row + i;
+                var col = src.Col + j;
+
+                if (row < 0 || col < 0 || row >= map.Length || map.Length == 0 || col >= map[0].Length) continue;
+
+                yield return (map[row][col], (row, col));
+            }
+        }
+        
+        public static IEnumerable<(T Item, (int Row, int Col) Index)> GetDiagonalNeighbours<T>(T[][] map,
+            (int Row, int Col) src)
+        {
+            for (var i = -1; i <= 1; ++i)
+            for (var j = -1; j <= 1; j++)
+            {
+                if (j == 0 && i == 0) continue;
+                if (j == 0 || i == 0) continue;
 
                 var row = src.Row + i;
                 var col = src.Col + j;
