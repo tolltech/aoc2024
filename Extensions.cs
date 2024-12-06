@@ -170,6 +170,17 @@ namespace AoC_2024;
                 yield return (map[row][col], (row, col), (i, j));
             }
         }
+        
+        public static (T Item, (int Row, int Col) Index) First<T>(T[][] map, T val)
+        {
+            for (var i = 0; i < map.Length; ++i)
+            for (var j = 0; j < map[i].Length; ++j)
+            {
+                if (Equals(val, map[i][j])) return (val, (i,j));
+            }
+            
+            throw new Exception("Value not found");
+        }
 
         public static string JoinToString<T>(this IEnumerable<T> items, string separator = "")
         {
