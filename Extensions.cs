@@ -192,3 +192,20 @@ namespace AoC_2024;
             return src.Length > 0 ? src.Last().ToString() : string.Empty;
         }
     }
+
+    public struct Point2
+    {
+        public Point2()
+        {
+            
+        }
+        
+        public Point2(int Row, int Col)
+        {
+            this.Row = Row;
+            this.Col = Col;
+        }
+        
+        public int Col;
+        public int Row;
+    }
