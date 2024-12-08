@@ -23,8 +23,20 @@ public class Task08_2
 .........A..
 ............
 ............",
-        14)]
-    [TestCase(@"Task08.txt", 332)]
+        34)]
+    [TestCase(
+        @"T....#....
+...T......
+.T....#...
+.........#
+..#.......
+..........
+...#......
+..........
+....#.....
+..........",
+        9, Ignore = "true")]
+    [TestCase(@"Task08.txt", 1174)]
     public void Task(string input, int expected)
     {
         input = File.Exists(input) ? File.ReadAllText(input) : input;
@@ -61,8 +73,7 @@ public class Task08_2
                 var first = points[i];
                 var second = points[j];
 
-                var nodes = GetAntiNodes(first, second)
-                    .Where(x => InsideMap(lines, x))
+                var nodes = GetAntiNodes(first, second, lines)
                     .ToArray();
 
                 if (!antinodes.TryGetValue(c, out _))
@@ -76,21 +87,34 @@ public class Task08_2
                 }
             }
         }
-        
+
         var totalAntinodes = antinodes.Values.SelectMany(x => x).ToHashSet();
+
+        var sbg = DBG(lines, totalAntinodes);
+        
         totalAntinodes.Count().Should().Be(expected);
     }
 
-    private Point2[] GetAntiNodes(Point2 first, Point2 second)
+    private IEnumerable<Point2> GetAntiNodes(Point2 first, Point2 second, string[] lines)
     {
         var deltaX = second.Col - first.Col;
         var deltaY = second.Row - first.Row;
 
-        return
-        [
-            new Point2(second.Col + deltaX, second.Row + deltaY),
-            new Point2(first.Col - deltaX, first.Row - deltaY)
-        ];
+        for (var i = 0;; i++)
+        {
+            var p = new Point2(second.Row + i * deltaY, second.Col + i * deltaX);
+            if (!InsideMap(lines, p)) break;
+
+            yield return p;
+        }
+
+        for (var i = 0;; i++)
+        {
+            var p = new Point2(first.Row - i * deltaY, first.Col - i * deltaX);
+            if (!InsideMap(lines, p)) break;
+
+            yield return p;
+        }
     }
 
     private bool InsideMap(string[] lines, Point2 point)
@@ -101,8 +125,8 @@ public class Task08_2
 
         return true;
     }
-    
-    private string DBG(string[] map, HashSet<(int, int)> visited)
+
+    private string DBG(string[] map, HashSet<Point2> visited)
     {
         var sb = new StringBuilder();
 
@@ -112,7 +136,7 @@ public class Task08_2
             {
                 var c = map[i][j];
 
-                if (visited.Contains((i, j))) c = '#';
+                if (visited.Contains(new Point2(i, j))) c = '#';
 
                 sb.Append(c);
             }

@@ -76,7 +76,7 @@ public class Task08
                 }
             }
         }
-        
+
         var totalAntinodes = antinodes.Values.SelectMany(x => x).ToHashSet();
         totalAntinodes.Count().Should().Be(expected);
     }
@@ -88,8 +88,8 @@ public class Task08
 
         return
         [
-            new Point2(second.Col + deltaX, second.Row + deltaY),
-            new Point2(first.Col - deltaX, first.Row - deltaY)
+            new Point2(second.Row + deltaY, second.Col + deltaX),
+            new Point2(first.Row - deltaY, first.Col - deltaX)
         ];
     }
 
@@ -101,7 +101,7 @@ public class Task08
 
         return true;
     }
-    
+
     private string DBG(string[] map, HashSet<(int, int)> visited)
     {
         var sb = new StringBuilder();
