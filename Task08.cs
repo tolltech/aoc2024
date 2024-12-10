@@ -33,20 +33,20 @@ public class Task08
 
         var result = 0L;
 
-        var totalAntennas = new List<(char Freq, Point2 Point)>();
+        var totalAntennas = new List<(char Freq, Point Point)>();
         for (var i = 0; i < lines.Length; i++)
         for (var j = 0; j < lines[i].Length; j++)
         {
             var c = lines[i][j];
             if (c == '.') continue;
 
-            totalAntennas.Add((c, new Point2(i, j)));
+            totalAntennas.Add((c, new Point(i, j)));
         }
 
         var antennas = totalAntennas.GroupBy(x => x.Freq)
             .ToDictionary(x => x.Key, x => x.Select(y => y.Point).ToArray());
 
-        var antinodes = new Dictionary<char, HashSet<Point2>>();
+        var antinodes = new Dictionary<char, HashSet<Point>>();
 
         foreach (var antenna in antennas)
         {
@@ -67,7 +67,7 @@ public class Task08
 
                 if (!antinodes.TryGetValue(c, out _))
                 {
-                    antinodes[c] = new HashSet<Point2>();
+                    antinodes[c] = new HashSet<Point>();
                 }
 
                 foreach (var node in nodes)
@@ -81,19 +81,19 @@ public class Task08
         totalAntinodes.Count().Should().Be(expected);
     }
 
-    private Point2[] GetAntiNodes(Point2 first, Point2 second)
+    private Point[] GetAntiNodes(Point first, Point second)
     {
         var deltaX = second.Col - first.Col;
         var deltaY = second.Row - first.Row;
 
         return
         [
-            new Point2(second.Row + deltaY, second.Col + deltaX),
-            new Point2(first.Row - deltaY, first.Col - deltaX)
+            new Point(second.Row + deltaY, second.Col + deltaX),
+            new Point(first.Row - deltaY, first.Col - deltaX)
         ];
     }
 
-    private bool InsideMap(string[] lines, Point2 point)
+    private bool InsideMap(string[] lines, Point point)
     {
         if (point.Col < 0 || point.Row < 0) return false;
         if (point.Row >= lines.Length) return false;

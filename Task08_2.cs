@@ -45,20 +45,20 @@ public class Task08_2
 
         var result = 0L;
 
-        var totalAntennas = new List<(char Freq, Point2 Point)>();
+        var totalAntennas = new List<(char Freq, Point Point)>();
         for (var i = 0; i < lines.Length; i++)
         for (var j = 0; j < lines[i].Length; j++)
         {
             var c = lines[i][j];
             if (c == '.') continue;
 
-            totalAntennas.Add((c, new Point2(i, j)));
+            totalAntennas.Add((c, new Point(i, j)));
         }
 
         var antennas = totalAntennas.GroupBy(x => x.Freq)
             .ToDictionary(x => x.Key, x => x.Select(y => y.Point).ToArray());
 
-        var antinodes = new Dictionary<char, HashSet<Point2>>();
+        var antinodes = new Dictionary<char, HashSet<Point>>();
 
         foreach (var antenna in antennas)
         {
@@ -78,7 +78,7 @@ public class Task08_2
 
                 if (!antinodes.TryGetValue(c, out _))
                 {
-                    antinodes[c] = new HashSet<Point2>();
+                    antinodes[c] = new HashSet<Point>();
                 }
 
                 foreach (var node in nodes)
@@ -95,14 +95,14 @@ public class Task08_2
         totalAntinodes.Count().Should().Be(expected);
     }
 
-    private IEnumerable<Point2> GetAntiNodes(Point2 first, Point2 second, string[] lines)
+    private IEnumerable<Point> GetAntiNodes(Point first, Point second, string[] lines)
     {
         var deltaX = second.Col - first.Col;
         var deltaY = second.Row - first.Row;
 
         for (var i = 0;; i++)
         {
-            var p = new Point2(second.Row + i * deltaY, second.Col + i * deltaX);
+            var p = new Point(second.Row + i * deltaY, second.Col + i * deltaX);
             if (!InsideMap(lines, p)) break;
 
             yield return p;
@@ -110,14 +110,14 @@ public class Task08_2
 
         for (var i = 0;; i++)
         {
-            var p = new Point2(first.Row - i * deltaY, first.Col - i * deltaX);
+            var p = new Point(first.Row - i * deltaY, first.Col - i * deltaX);
             if (!InsideMap(lines, p)) break;
 
             yield return p;
         }
     }
 
-    private bool InsideMap(string[] lines, Point2 point)
+    private bool InsideMap(string[] lines, Point point)
     {
         if (point.Col < 0 || point.Row < 0) return false;
         if (point.Row >= lines.Length) return false;
@@ -126,7 +126,7 @@ public class Task08_2
         return true;
     }
 
-    private string DBG(string[] map, HashSet<Point2> visited)
+    private string DBG(string[] map, HashSet<Point> visited)
     {
         var sb = new StringBuilder();
 
@@ -136,7 +136,7 @@ public class Task08_2
             {
                 var c = map[i][j];
 
-                if (visited.Contains(new Point2(i, j))) c = '#';
+                if (visited.Contains(new Point(i, j))) c = '#';
 
                 sb.Append(c);
             }

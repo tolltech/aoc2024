@@ -193,14 +193,14 @@ namespace AoC_2024;
         }
     }
 
-    public struct Point2
+    public struct Point
     {
-        public Point2()
+        public Point()
         {
             
         }
         
-        public Point2(int Row, int Col)
+        public Point(int Row, int Col)
         {
             this.Row = Row;
             this.Col = Col;
@@ -208,4 +208,14 @@ namespace AoC_2024;
         
         public int Col;
         public int Row;
+
+        public static implicit operator (int Row, int Col)(Point p)
+        {
+            return (p.Row, p.Col);
+        }
+        
+        public static implicit operator Point((int Row, int Col) p)
+        {
+            return new Point(p.Row, p.Col);
+        }
     }
