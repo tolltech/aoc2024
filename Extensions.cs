@@ -193,7 +193,7 @@ namespace AoC_2024;
         }
     }
 
-    public struct Point
+    public struct Point : IEquatable<Point>
     {
         public Point()
         {
@@ -217,5 +217,20 @@ namespace AoC_2024;
         public static implicit operator Point((int Row, int Col) p)
         {
             return new Point(p.Row, p.Col);
+        }
+
+        public bool Equals(Point other)
+        {
+            return Col == other.Col && Row == other.Row;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Point other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Col, Row);
         }
     }
