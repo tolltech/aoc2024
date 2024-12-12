@@ -191,6 +191,12 @@ namespace AoC_2024;
         {
             return src.Length > 0 ? src.Last().ToString() : string.Empty;
         }
+
+        public static T SafeGet<T>(this T[][] map, int row, int col)
+        {
+            if (row < 0 || col < 0 || row >= map.Length || col >= map[row].Length) return default;
+            return map[row][col];
+        }
     }
 
     public struct Point : IEquatable<Point>

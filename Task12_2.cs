@@ -42,6 +42,11 @@ MIIISIJEEE
 MMMISSJEEE
 ", 1206)]
     [TestCase(@"Task12.txt", 0)]
+    
+    [TestCase(@"AAAA
+BBCC
+DDDC
+DCCC", 11)]
     public void Task(string input, long expected)
     {
         input = File.Exists(input) ? File.ReadAllText(input) : input;
@@ -50,6 +55,7 @@ MMMISSJEEE
         var result = 0L;
 
         var visited = new HashSet<Point>();
+        var regions = new List<HashSet<Point>>();
 
         for (var i = 0; i < map.Length; i++)
         for (var j = 0; j < map[i].Length; j++)
@@ -57,13 +63,43 @@ MMMISSJEEE
             if (visited.Contains((i, j))) continue;
 
             var region = GetRegion(map, new Point(i, j), visited);
-            result += region.Area * region.Perimeter;
+            regions.Add(region);
         }
 
-        result.Should().Be(expected);
+        var borderFirstPoints = new List<Point>();
+        for (var i = 0; i < map.Length; i++)
+        {
+            char prev = default;
+            char prevUp = default;
+            char prevDown = default;
+            
+            for (var j = 0; j < map[i].Length; j++)
+            {
+                var curUp = map.SafeGet(i - 1, j);
+                var cur = map[i][j];
+                var curDown = map.SafeGet(i + 1, j);
+                
+                if (cur != prev)
+                {
+                    if (curUp != cur) borderFirstPoints.Add((i,j));
+                    if (curDown != cur) borderFirstPoints.Add((i,j));
+                }
+                else
+                {
+                    if (prevUp == cur && cur != curUp)borderFirstPoints.Add((i,j));
+                    if (prevDown == cur && cur != curDown)borderFirstPoints.Add((i,j));
+                }
+                
+                prev = cur;
+                prevUp = curUp;
+                prevDown = curDown;
+            }
+        }
+
+        ((long)borderFirstPoints.Count).Should().Be(expected);
     }
 
-    private (long Area, long Perimeter) GetRegion(char[][] map, Point point, HashSet<Point> visited)
+    private HashSet<Point> GetRegion(char[][] map, Point point, HashSet<Point> visited)
     {
         var c = map[point.Row][point.Col];
         var region = new HashSet<Point>();
@@ -71,16 +107,12 @@ MMMISSJEEE
         var queue = new Queue<Point>();
         queue.Enqueue(point);
 
-        var perimeter = 0L;
-
         while (queue.Count > 0)
         {
             var currentPoint = queue.Dequeue();
             if (!region.Add(currentPoint)) continue;
 
             var neighbours = Extensions.GetVerticalHorizontalNeighbours(map, currentPoint).ToArray();
-            perimeter += 4 - neighbours.Length;
-            perimeter += neighbours.Count(x => x.Item != c);
 
             foreach (var neighbour in neighbours.Where(x => x.Item == c))
             {
@@ -95,6 +127,6 @@ MMMISSJEEE
             visited.Add(p);
         }
 
-        return (region.Count, perimeter);
+        return region;
     }
 }
