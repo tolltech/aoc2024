@@ -18,11 +18,21 @@ OXOXO
 OOOOO
 OXOXO
 OOOOO", 436)]
+    [TestCase(@"OOOOO
+OXOXO
+OOOOO
+OXOXO
+OOOOO", 18, true)]
     [TestCase(@"EEEEE
 EXXXX
 EEEEE
 EXXXX
 EEEEE", 236)]
+    [TestCase(@"EEEEE
+EXXXX
+EEEEE
+EXXXX
+EEEEE", 10, true)]
     [TestCase(@"AAAAAA
 AAABBA
 AAABBA
@@ -41,18 +51,16 @@ MIIIIIJJEE
 MIIISIJEEE
 MMMISSJEEE
 ", 1206)]
-    [TestCase(@"Task12.txt", 0)]
+    [TestCase(@"Task12.txt", 872382)]
     
     [TestCase(@"AAAA
 BBCC
 DDDC
-DCCC", 11)]
-    public void Task(string input, long expected)
+DCCC", 11, true)]
+    public void Task(string input, long expected, bool onlyHor = false)
     {
         input = File.Exists(input) ? File.ReadAllText(input) : input;
         var map = input.SplitLines().Select(x => x.ToArray()).ToArray();
-
-        var result = 0L;
 
         var visited = new HashSet<Point>();
         var regions = new List<HashSet<Point>>();
@@ -96,7 +104,48 @@ DCCC", 11)]
             }
         }
 
-        ((long)borderFirstPoints.Count).Should().Be(expected);
+        if (onlyHor)
+        {
+            ((long)borderFirstPoints.Count).Should().Be(expected);
+            return;
+        }
+
+        for (var j = 0; j < map[0].Length; j++)
+        {
+            char prev = default;
+            char prevLeft = default;
+            char prevRight = default;
+            
+            for (var i = 0; i < map.Length; i++)
+            {
+                var curLeft = map.SafeGet(i, j-1);
+                var cur = map[i][j];
+                var curRight = map.SafeGet(i, j+1);
+                
+                if (cur != prev)
+                {
+                    if (curLeft != cur) borderFirstPoints.Add((i,j));
+                    if (curRight != cur) borderFirstPoints.Add((i,j));
+                }
+                else
+                {
+                    if (prevLeft == cur && cur != curLeft)borderFirstPoints.Add((i,j));
+                    if (prevRight == cur && cur != curRight)borderFirstPoints.Add((i,j));
+                }
+                
+                prev = cur;
+                prevLeft = curLeft;
+                prevRight = curRight;
+            }
+        }
+
+        var result = 0L;
+        foreach (var region in regions)
+        {
+            result += region.Count * borderFirstPoints.Count(x => region.Contains(x));
+        }
+
+        result.Should().Be(expected);
     }
 
     private HashSet<Point> GetRegion(char[][] map, Point point, HashSet<Point> visited)
