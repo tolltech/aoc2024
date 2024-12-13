@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace AoC_2024;
 
 [TestFixture]
-public class Task13
+public class Task13_2
 {
     [Test]
     [TestCase(@"Button A: X+94, Y+34
@@ -49,12 +49,12 @@ Prize: X=18641, Y=10279", 480)]
             cond[1][1] = bc.right;
 
             var cc = GetInput(lines[2]);
-            cond[0][2] = cc.left;
-            cond[1][2] = cc.right;
+            cond[0][2] = 10000000000000 + cc.left;
+            cond[1][2] = 10000000000000 + cc.right;
 
             var (a, b) = Solve(cond);
 
-            if (a <= 100 && b <= 100)
+            //if (a <= 100 && b <= 100)
                 result += 3 * a + b;
         }
 
