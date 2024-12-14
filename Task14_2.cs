@@ -47,7 +47,7 @@ p=9,5 v=-3,-3", 11, 7, 100, 12)]
             .ToArray();
 
         var dbs = new List<string>();
-        for (var i = 1; i < 1700; i++)
+        for (var i = 1700; i < 3000; i++)
         {
             foreach (var robot in robots)
             {
