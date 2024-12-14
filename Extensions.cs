@@ -1,4 +1,5 @@
-﻿using System.Runtime.Intrinsics.Arm;
+﻿using System.Diagnostics;
+using System.Runtime.Intrinsics.Arm;
 using System.Text;
 
 namespace AoC_2024;
@@ -199,6 +200,7 @@ namespace AoC_2024;
         }
     }
 
+    [DebuggerDisplay("X:{X},Y:{Y}")]
     public struct Point : IEquatable<Point>
     {
         public Point()
@@ -214,6 +216,18 @@ namespace AoC_2024;
         
         public int Col;
         public int Row;
+
+        public int X
+        {
+            get => Col;
+            set => Col = value;
+        }
+        
+        public int Y
+        {
+            get => Row;
+            set => Row = value;
+        }
 
         public static implicit operator (int Row, int Col)(Point p)
         {
