@@ -47,7 +47,7 @@ p=9,5 v=-3,-3", 11, 7, 100, 12)]
             .ToArray();
 
         var dbs = new List<string>();
-        for (var i = 1; i < 10000; i++)
+        for (var i = 1; i < 1700; i++)
         {
             foreach (var robot in robots)
             {
@@ -81,7 +81,7 @@ p=9,5 v=-3,-3", 11, 7, 100, 12)]
         var lines = new char[mapSize.Row][];
         for (var i = 0; i < lines.Length; i++)
         {
-            lines[i] = Enumerable.Range(0, mapSize.Col).Select(x => '.').ToArray();
+            lines[i] = Enumerable.Range(0, mapSize.Col).Select(x => ' ').ToArray();
         }
 
         foreach (var robot in robots)
