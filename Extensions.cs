@@ -262,6 +262,11 @@ namespace AoC_2024;
             return new Point(p1.Y + p2.Y, p1.X + p2.X);
         }
         
+        public static Point operator -(Point p1, Point p2)
+        {
+            return new Point(p1.Y - p2.Y, p1.X - p2.X);
+        }
+        
         public static implicit operator (int Row, int Col)(Point p)
         {
             return (p.Row, p.Col);

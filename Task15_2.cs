@@ -28,14 +28,28 @@ vvv<<^>^v^^><<>>><>^<<><^vv^^<>vvv<>><^^v>^>vv<>v<<<<v<^v>^<^^>>>^<v<v
 <><^^>^^^<><vvvvv^v<v<<>^v<v>v<<^><<><<><<<^^<<<^<<>><<><^^^>^^<>^>v<>
 ^^>vv<^v^v<vv>^<><v<^v>^^^>>>^^vvv^>vvv<>>>^<^>>>>>^<<^v>^vvv<>^<><<v>
 v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^", 9021)]
-    [TestCase(@"Task15.txt", 0)]
+    [TestCase(@"#######
+#...#.#
+#.....#
+#..OO@#
+#..O..#
+#.....#
+#######
+
+<vv<<^^<<^^", 618)]
+    [TestCase(@"Task15.txt", 1386070)]
     public void Task(string input, long expected)
     {
         input = File.Exists(input) ? File.ReadAllText(input) : input;
 
         var split = input.SplitEmpty(Environment.NewLine + Environment.NewLine);
 
-        var map = split[0].SplitLines().Select(x => x.ToArray()).ToArray();
+        var map = split[0]
+            .Replace(".", "..")
+            .Replace("#", "##")
+            .Replace("O", "[]")
+            .Replace("@", "@.")
+            .SplitLines().Select(x => x.ToArray()).ToArray();
         var moves = split[1].Replace("\r", "").Replace("\n", "");
 
         var robot = new Point();
@@ -62,7 +76,7 @@ v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^", 9021)]
         for (var i = 0; i < map.Length; i++)
         for (var j = 0; j < map[i].Length; j++)
         {
-            if (map.Get((i, j)) == 'O')
+            if (map.Get((i, j)) == '[')
             {
                 result += 100 * i + j;
             }
@@ -71,20 +85,113 @@ v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^", 9021)]
         result.Should().Be(expected);
     }
 
-    private Point Move(Point robot, char[][] map, Point move)
+    private bool CheckWall(Point objPosition, char[][] map, Point move)
+    {
+        if (map.Get(objPosition) == '.')
+        {
+            return false;
+        }
+
+        var newPositions = GetNewPositions(objPosition, map, move);
+
+        var nextObjects = newPositions.Select(map.Get).ToArray();
+
+        if (nextObjects.Any(x => x == '#'))
+        {
+            return true;
+        }
+
+        if (nextObjects.All(x => x == '.'))
+        {
+            return false;
+        }
+
+        var boxes = newPositions.Where(x => boxChars.Contains(map.Get(x))).ToArray();
+        return boxes.Any(box => CheckWall(box, map, move));
+    }
+
+    private static readonly HashSet<char> boxChars = ['[', ']'];
+
+    private Point Move(Point objPosition, char[][] map, Point move)
+    {
+        if (move.Row != 0)
+        {
+            var checkWall = CheckWall(objPosition, map, move);
+            if (checkWall) return objPosition;
+
+            BruteForceMove(objPosition, map, move);
+            return objPosition + move;
+        }
+
+        return MoveHorizontal(objPosition, map, move);
+    }
+
+    private void BruteForceMove(Point objPosition, char[][] map, Point move)
+    {
+        var boxes = new HashSet<Point>();
+        FlatBoxes(objPosition, map, move, boxes);
+
+        var orderedBoxes = move.Row < 0
+            ? boxes.OrderBy(x => x.Row).ToArray()
+            : boxes.OrderByDescending(x => x.Row).ToArray();
+
+        foreach (var box in orderedBoxes)
+        {
+            var newBox = box + move;
+            map[newBox.Row][newBox.Col] = map.Get(box);
+            map[box.Row][box.Col] = '.';
+        }
+    }
+
+    private void FlatBoxes(Point objPosition, char[][] map, Point move, HashSet<Point> boxes)
+    {
+        var c = map.Get(objPosition);
+        if (c == '.') return;
+
+        boxes.Add(objPosition);
+
+        if (c == '[')
+        {
+            boxes.Add(objPosition + (0, 1));
+        }
+
+        if (c == ']')
+        {
+            boxes.Add(objPosition + (0, -1));
+        }
+
+        var newPositions = GetNewPositions(objPosition, map, move);
+        foreach (var newPosition in newPositions)
+        {
+            FlatBoxes(newPosition, map, move, boxes);
+        }
+    }
+
+    private Point[] GetNewPositions(Point objPosition, char[][] map, Point move)
+    {
+        var obj = map.Get(objPosition);
+        if (obj == '@') return [objPosition + move];
+
+        if (obj == '[') return [objPosition + move, new Point(objPosition.Row, objPosition.Col + 1) + move];
+        if (obj == ']') return [objPosition + move, new Point(objPosition.Row, objPosition.Col - 1) + move];
+
+        throw new Exception("dasdsad");
+    }
+
+    private Point MoveHorizontal(Point robot, char[][] map, Point move)
     {
         var newRobot = robot + move;
-        
+
         var result = newRobot;
 
         var c = map.Get(newRobot);
         if (c == '.') result = newRobot;
         if (c == '#') result = robot;
 
-        if (c == 'O')
+        if (c == '[' || c == ']')
         {
-            var newC = Move(newRobot, map, move);
-            
+            var newC = MoveHorizontal(newRobot, map, move);
+
             if (newC.Equals(newRobot)) result = robot;
             else result = newRobot;
         }
@@ -105,7 +212,7 @@ v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^", 9021)]
         { '<', Extensions.LeftStep },
         { '>', Extensions.RightStep },
     };
-    
+
     class Robot
     {
         public Point Start { get; set; }
