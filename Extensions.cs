@@ -198,6 +198,34 @@ namespace AoC_2024;
             if (row < 0 || col < 0 || row >= map.Length || col >= map[row].Length) return default;
             return map[row][col];
         }
+        
+        public static T Get<T>(this T[][] map, Point point)
+        {
+            return map[point.Row][point.Col];
+        }
+        
+        public static readonly (int Row, int Col) DownStep = (1, 0);
+        public static readonly (int Row, int Col) LeftStep = (0, -1);
+        public static readonly (int Row, int Col) UpStep = (-1, 0);
+        public static readonly (int Row, int Col) RightStep = (0, 1);
+        
+        public static string PrintMap<T>(T[][] map, Func<T, string> printFunc = null)
+        {
+            var sb = new StringBuilder();
+
+            foreach (var t in map)
+            {
+                foreach (var c in t)
+                {
+                    sb.Append(printFunc != null ? printFunc(c) : c.ToString());
+                }
+
+                sb.AppendLine();
+            }
+
+            return sb.ToString();
+        }
+
     }
 
     [DebuggerDisplay("X:{X},Y:{Y}")]
@@ -229,6 +257,11 @@ namespace AoC_2024;
             set => Row = value;
         }
 
+        public static Point operator +(Point p1, Point p2)
+        {
+            return new Point(p1.Y + p2.Y, p1.X + p2.X);
+        }
+        
         public static implicit operator (int Row, int Col)(Point p)
         {
             return (p.Row, p.Col);
