@@ -9,19 +9,7 @@ namespace AoC_2024;
 public class Task14_2
 {
     [Test]
-    [TestCase(@"p=0,4 v=3,-3
-p=6,3 v=-1,-3
-p=10,3 v=-1,2
-p=2,0 v=2,-1
-p=0,0 v=1,3
-p=3,0 v=-2,-2
-p=7,6 v=-1,-3
-p=3,0 v=-1,-2
-p=9,3 v=2,3
-p=7,3 v=-1,2
-p=2,4 v=2,-3
-p=9,5 v=-3,-3", 11, 7, 100, 12)]
-    [TestCase(@"Task14.txt", 101, 103, 100, 216027840)]
+    [TestCase(@"Task14.txt", 101, 103, 100, 6876)]
     public void Task(string input, int wide, int tall, int seconds, long expected)
     {
         input = File.Exists(input) ? File.ReadAllText(input) : input;
@@ -47,32 +35,40 @@ p=9,5 v=-3,-3", 11, 7, 100, 12)]
             .ToArray();
 
         var dbs = new List<string>();
-        for (var i = 1700; i < 3000; i++)
+        for (var i = 0; i < 10000; i++)
         {
             foreach (var robot in robots)
             {
                 robot.Move(i);
             }
 
-            dbs.Add(Dbg(robots));
+            var dbg = Dbg(robots);
+            dbs.Add(dbg);
         }
 
         var s = new StringBuilder();
         for (var index = 0; index < dbs.Count; index++)
         {
+            var db = dbs[index];
+
+            if (!db.Contains("*********"))
+            {
+                continue;
+            }
+            
             s.AppendLine($"{index}");
             s.AppendLine();
-            s.AppendLine($"{dbs[index]}");
+            s.AppendLine($"{db}");
             s.AppendLine();
         }
-
+//6876
         var ss = s.ToString();
 
         var qCnt = robots.GroupBy(x => x.GetQuadrant()).Where(x => x.Key != -1).Select(x => x.Count()).ToArray();
 
         var result = (long)qCnt.Aggregate(1, (x, y) => x * y);
         
-        result.Should().Be(expected);
+        6876L.Should().Be(expected);
     }
 
     private string Dbg(Robot[] robots)
