@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace AoC_2024;
 
 [TestFixture]
-public class Task20
+public class Task20_2
 {
     [Test]
     [TestCase(@"###############
@@ -21,7 +21,37 @@ public class Task20
 #.#...#.#.#...#
 #.#.#.#.#.#.###
 #...#...#...###
-###############", 12, 8)]
+###############", 76, 3)]
+    [TestCase(@"###############
+#...#...#.....#
+#.#.#.#.#.###.#
+#S#...#.#.#...#
+#######.#.#.###
+#######.#.#...#
+#######.#.###.#
+###..E#...#...#
+###.#######.###
+#...###...#...#
+#.#####.#.###.#
+#.#...#.#.#...#
+#.#.#.#.#.#.###
+#...#...#...###
+###############", 74, 7)]
+    [TestCase(@"###############
+#...#...#.....#
+#.#.#.#.#.###.#
+#S#...#.#.#...#
+#######.#.#.###
+#######.#.#...#
+#######.#.###.#
+###..E#...#...#
+###.#######.###
+#...###...#...#
+#.#####.#.###.#
+#.#...#.#.#...#
+#.#.#.#.#.#.###
+#...#...#...###
+###############", 72, 29)]
     [TestCase(@"Task20.txt", 100, 1327)]
     public void Task(string input, long seconds, long expected)
     {
@@ -38,23 +68,18 @@ public class Task20
 
         var result = 0L;
 
-        for (var i = 1; i < map.Length - 1; ++i)
-        for (var j = 1; j < map[i].Length - 1; j++)
+        var dotes = distCommon.OrderBy(x => x.Value).Select(x => x.Key).ToArray();
+
+        foreach (var dote in dotes)
         {
-            if (map[i][j] != '#') continue;
-
-            foreach (var step in Clocwise)
+            var dist = Dijkstra(dote, map);
+            foreach (var d in dist)
             {
-                var cheat = (Position: new Point(i, j), Step: step);
-
-                var from = cheat.Position - cheat.Step;
-                var to = cheat.Position + cheat.Step;
-
-                if (distCommon.TryGetValue(from, out var fromDist) && distCommon.TryGetValue(to, out var toDist))
-                {
-                    var delta = toDist - fromDist - 2;
-                    if (delta > 0 && delta >= seconds) result++;
-                }
+                var item = map.Get(d.Key);
+                if (item != '.' && item != 'E') continue;
+                
+                var delta = distCommon[d.Key] - (distCommon[dote] + d.Value);
+                if (delta > 0 && delta >= seconds) result++;
             }
         }
 
@@ -88,28 +113,24 @@ public class Task20
         return result;
     }
 
-    private Dictionary<Point, long> Dijkstra(Point start, char[][] map, (Point Poistion, Point Step)? cheat)
+    private Dictionary<Point, long> Dijkstra(Point start, char[][] map)
     {
         var dist = new Dictionary<Point, long>();
         var marked = new HashSet<Point>();
-
+        
         var pq = new PriorityQueue<Point, long>();
-
-        dist[start] = 0;
-
-        var maxMarkedWeight = 0L;
-
         pq.Enqueue(start, 0);
+        dist[start] = 0;
 
         while (pq.Count > 0)
         {
             var v = pq.Dequeue();
             if (!marked.Add(v)) continue;
 
-            if (dist[v] > maxMarkedWeight) maxMarkedWeight = dist[v];
-            if (maxMarkedWeight > commonWeight) return dist;
+            if (dist[v] >= 20) continue;
+            if (!v.Equals(start) && (map.Get(v) == '.' || map.Get(v) == 'E')) continue;
 
-            var nextVs = GetNextV(map, v, marked, cheat);
+            var nextVs = GetNextV(map, v, marked);
 
             foreach (var nextV in nextVs)
             {
@@ -126,24 +147,14 @@ public class Task20
     }
 
     private IEnumerable<(Point Position, int Weight)> GetNextV(char[][] map,
-        Point fromPoint, HashSet<Point> marked, (Point Poistion, Point Step)? cheat)
+        Point fromPoint, HashSet<Point> marked)
     {
         foreach (var next in Extensions.GetVerticalHorizontalNeighboursDirections(map, fromPoint))
         {
             if (marked.Contains(next.Index)) continue;
+            if (map.Get(fromPoint) == '.' && next.Item == '.') continue;
 
-            if (next.Item is '.' or 'E' or 'S')
-            {
-                yield return (next.Index, 1);
-                continue;
-            }
-
-            if (!cheat.HasValue) continue;
-
-            if (cheat.Value.Poistion.Equals(next.Index) && cheat.Value.Step.Equals(next.Direction))
-            {
-                yield return (next.Index, 1);
-            }
+            yield return (next.Index, 1);
         }
     }
 
