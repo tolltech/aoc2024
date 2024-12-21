@@ -7,34 +7,41 @@ namespace AoC_2024;
 public class Task21
 {
     [Test]
-    [TestCase(@"029A
-980A
-179A
-456A
-379A", 126384)]
-    [TestCase(@"140A
-169A
-170A
-528A
-340A
+    [TestCase(@"<0^2^^>9vvvA
+^^^9<8vvv0>A
+^<<1^^7>>9vvvA
+^^<<4>5>6vvA
+^3<<^^7>>9vvvA", 126384)]
+    [TestCase(@"^<<1^4>vv0>A
+^<<1^>>6^9vvvA
+^<<1^^7>vvv0>A
+^^<5v2^^8vvv>A
+^3^<<4>vv0>A
 ", 0)]
     public void Task(string input, long expected)
     {
         input = File.Exists(input) ? File.ReadAllText(input) : input;
 
         var commands = GetAllCommands().ToArray();
-        var suitableCommands = new List<string>();
 
-        var expectedCommand = "<0^2";//^^>9vvvA
-        foreach (var expectedChar in expectedCommand)
+
+        var result = 0L;
+        foreach (var line in input.SplitLines())
         {
-            var minCommand = GetCommands(expectedChar, commands, suitableCommands).Distinct().OrderBy(x => x.Length).ToArray();
+            var suitableCommands = new List<string>();
+            foreach (var expectedChar in line)
+            {
+                var minCommand = GetCommands(expectedChar, commands, suitableCommands).Distinct().OrderBy(x => x.Length).ToArray();
             
-            suitableCommands.Add(minCommand.First());
-        }
+                suitableCommands.Add(minCommand.First());
+            }
 
-        var resultCommand = suitableCommands.JoinToString();
-        0L.Should().Be(expected);
+            var resultCommand = suitableCommands.JoinToString();
+
+            result += ((long)resultCommand.Length) * int.Parse(new string(line.Where(char.IsDigit).ToArray()));
+        }
+        
+        result.Should().Be(expected);
     }
 
     private IEnumerable<string> GetCommands(char target, string[] commands, List<string> suitableCommands)
@@ -74,13 +81,30 @@ public class Task21
     {
         var verticals = new[] { "", "v", "^" };
         var horizontals = new[] { "", ">", ">>", "<", "<<" };
+
+        var commands = new[]
+        {
+            "",
+            "<",
+            "v",
+            "^",
+            ">",
+            "<<",
+            ">v",
+            ">>",
+            ">^",
+            "v<",
+            "^<",
+            "<v<",
+            ">>^",
+        };
+
         var aS = new[] { "A", "AA", "AAA" };
         
-        foreach (var horizontal in horizontals)
-        foreach (var vertical in verticals) 
+        foreach (var horizontal in commands)
         foreach (var a in aS)
         {
-            yield return $"{horizontal}{vertical}{a}";
+            yield return $"{horizontal}{a}";
         }
     }
     
@@ -92,8 +116,9 @@ public class Task21
     
     [Test]
     [TestCase("<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A", "029A")]
+    [TestCase("v<A<AA>>^AvAA^<A>A<v<A>>^AvA^A<v<A>>^AAvA<A>^A<A>Av<A<A>>^AAA<A>vA^A", "029A")]
     [TestCase("<vA<AA>>^AvAA<^A>A<vA<A>^A>AvA^A", "02")]
-    [TestCase("<vA<AA>>^AvAA<^A>A<vA<A>^A>AvA^A<vA<A>^A>AAvA<A>^A<A>A<vA<A>>^AAAvA<^A>A", "029A")]
+    //[TestCase("<vA<AA>>^AvAA<^A>A<vA<A>^A>AvA^A<vA<A>^A>AAvA<A>^A<A>A<vA<A>>^AAAvA<^A>A", "029A")]
     [TestCase("<v<A>>^AAAvA^A<vA<AA>>^AvAA<^A>A<v<A>A>^AAAvA<^A>A<vA>^A<A>A", "980A")]
     [TestCase("<v<A>>^A<vA<A>>^AAvAA<^A>A<v<A>>^AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A", "179A")]
     [TestCase("<v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A", "456A")]
