@@ -52,7 +52,7 @@ public class Task20_2
 #.#.#.#.#.#.###
 #...#...#...###
 ###############", 72, 29)]
-    [TestCase(@"Task20.txt", 100, 1327)]
+    [TestCase(@"Task20.txt", 100, 985737L)]
     public void Task(string input, long seconds, long expected)
     {
         input = File.Exists(input) ? File.ReadAllText(input) : input;
@@ -128,7 +128,7 @@ public class Task20_2
             if (!marked.Add(v)) continue;
 
             if (dist[v] >= 20) continue;
-            if (!v.Equals(start) && (map.Get(v) == '.' || map.Get(v) == 'E')) continue;
+            //if (!v.Equals(start) && (map.Get(v) == '.' || map.Get(v) == 'E')) continue;
 
             var nextVs = GetNextV(map, v, marked);
 
@@ -152,7 +152,7 @@ public class Task20_2
         foreach (var next in Extensions.GetVerticalHorizontalNeighboursDirections(map, fromPoint))
         {
             if (marked.Contains(next.Index)) continue;
-            if (map.Get(fromPoint) == '.' && next.Item == '.') continue;
+            //if (map.Get(fromPoint) == '.' && next.Item == '.') continue;
 
             yield return (next.Index, 1);
         }
