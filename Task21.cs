@@ -22,20 +22,68 @@ public class Task21
     {
         input = File.Exists(input) ? File.ReadAllText(input) : input;
 
-        var firstKeyboard = new Keyboard();
-        var currentKeyboard = firstKeyboard;
-        for (var i = 0; i < 1; ++i)
-        {
-            var nextKeyboard = new Keyboard();
-            currentKeyboard.Next = nextKeyboard;
-            currentKeyboard = nextKeyboard;
-        }
-        
-        
+        var commands = GetAllCommands().ToArray();
+        var suitableCommands = new List<string>();
 
+        var expectedCommand = "<0^2";//^^>9vvvA
+        foreach (var expectedChar in expectedCommand)
+        {
+            var minCommand = GetCommands(expectedChar, commands, suitableCommands).Distinct().OrderBy(x => x.Length).ToArray();
+            
+            suitableCommands.Add(minCommand.First());
+        }
+
+        var resultCommand = suitableCommands.JoinToString();
         0L.Should().Be(expected);
     }
 
+    private IEnumerable<string> GetCommands(char target, string[] commands, List<string> suitableCommands)
+    {
+        foreach (var command1 in commands)
+        foreach (var command2 in commands)
+        foreach (var command3 in commands)
+        foreach (var command4 in commands)
+        {
+            var keyBoard = InitKeyboards();
+            
+            foreach (var command in suitableCommands)
+            {
+                ExecCommand(command, keyBoard);
+            }
+            
+            var bigCommand = command1 + command2 + command3 + command4;
+            
+            for (var i = 0; i < bigCommand.Length; i++)
+            {
+                var c = bigCommand[i];
+                
+                var r = keyBoard.Exec(c);
+                
+                if (r == target)
+                {
+                    yield return bigCommand.Substring(0, i + 1);
+                    break;
+                }
+                
+                if (r != default) break;
+            }
+        }
+    }
+
+    private static IEnumerable<string> GetAllCommands()
+    {
+        var verticals = new[] { "", "v", "^" };
+        var horizontals = new[] { "", ">", ">>", "<", "<<" };
+        var aS = new[] { "A", "AA", "AAA" };
+        
+        foreach (var horizontal in horizontals)
+        foreach (var vertical in verticals) 
+        foreach (var a in aS)
+        {
+            yield return $"{horizontal}{vertical}{a}";
+        }
+    }
+    
     //029A: <vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A
     //980A: <v<A>>^AAAvA^A<vA<AA>>^AvAA<^A>A<v<A>A>^AAAvA<^A>A<vA>^A<A>A
     //179A: <v<A>>^A<vA<A>>^AAvAA<^A>A<v<A>>^AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A
@@ -44,11 +92,38 @@ public class Task21
     
     [Test]
     [TestCase("<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A", "029A")]
+    [TestCase("<vA<AA>>^AvAA<^A>A<vA<A>^A>AvA^A", "02")]
+    [TestCase("<vA<AA>>^AvAA<^A>A<vA<A>^A>AvA^A<vA<A>^A>AAvA<A>^A<A>A<vA<A>>^AAAvA<^A>A", "029A")]
     [TestCase("<v<A>>^AAAvA^A<vA<AA>>^AvAA<^A>A<v<A>A>^AAAvA<^A>A<vA>^A<A>A", "980A")]
     [TestCase("<v<A>>^A<vA<A>>^AAvAA<^A>A<v<A>>^AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A", "179A")]
     [TestCase("<v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A", "456A")]
     [TestCase("<v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A", "379A")]
     public void Dbg(string command, string expected)
+    {
+        var firstKeyboard = InitKeyboards();
+
+        var result = ExecCommand(command, firstKeyboard);
+
+        new string(result.Where(c => char.IsDigit(c) || c == 'A').ToArray()).Should().Be(expected);
+    }
+
+    private static string ExecCommand(string command, Keyboard keyboard)
+    {
+        var result = string.Empty;
+        foreach (var c in command)
+        {
+            var r = keyboard.Exec(c);
+
+            if (r == 'E') throw new Exception("Dsdsad");
+            
+            if (r != default)
+                result += r;
+        }
+
+        return result;
+    }
+
+    private static Keyboard InitKeyboards()
     {
         var firstKeyboard = new Keyboard();
         var currentKeyboard = firstKeyboard;
@@ -59,21 +134,11 @@ public class Task21
             currentKeyboard = nextKeyboard;
         }
 
-        var result = string.Empty;
-        foreach (var c in command)
-        {
-            var r = firstKeyboard.Exec(c);
+        Numeric = new NumericKeyboard();
+        return firstKeyboard;
+    }
 
-            if (r == 'E') throw new Exception("Dsdsad");
-            
-            if (r != default)
-                result += r;
-        }
-
-        new string(result.Where(c => char.IsDigit(c) || c == 'A').ToArray()).Should().Be(expected);
-    }   
-
-    private static readonly NumericKeyboard Numeric = new();
+    private static NumericKeyboard Numeric;
     
     private class NumericKeyboard
     {
