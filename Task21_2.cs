@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace AoC_2024;
 
 [TestFixture]
-public class Task21
+public class Task21_2
 {
     [Test]
     [TestCase(@"<0^2^^>9vvvA
