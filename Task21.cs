@@ -122,6 +122,7 @@ public class Task21
     [TestCase("340A","^A<<^A>vvA>A", "")]// 66 !!! 22440
     [TestCase("340A","^A<^<A>vvA>A", "")]// 78
     [TestCase("340A","^A^<<Av>vA>A", "")]//76
+    [TestCase("1","^<<A", "")]//26
     //94284
     public void Command(string expectedOutput, string command, string expected)
     {

@@ -123,34 +123,42 @@ public class Task21_2
     [TestCase("340A","^A<^<A>vvA>A", 78)]// 78
     [TestCase("340A","^A^<<Av>vA>A", 76)]//76
     //94284
-    [TestCase("1","^<<A", 0)]//70 !!! 9800
-    public void Command(string expectedOutput, string command, int expected)
+    [TestCase("1","^<<A", 26)]//v<<A>>^Av<A<A>>^AAvAA<^A>A
+    public void Command(string expectedOutput, string command, long expected)
     {
-        var oldCommand = command.ToList();
-        for (var i = 0; i < 25; ++i)
+        var commands = command.Split('A');
+
+        var result = 0L;
+        var cache = new Dictionary<(string, int), long>();
+        for (var ci = 0; ci < commands.Length - 1; ci++)
         {
-            var newCommand = new List<char>(oldCommand.Count);
+            var cmd = commands[ci];
+            result += GetLength(cmd, 2, cache);
+        }
+        //var keyboard = InitKeyboards();
+        //var output = ExecCommand(new string(oldCommand.ToArray()), keyboard);
 
-            var skipCount = 0;
-            while (skipCount < oldCommand.Count)
-            {
-                var cmd = new string(oldCommand.Skip(skipCount).TakeWhile(x => x != 'A').ToArray());
-                if (cmd.Length == 0) cmd = "";
-                
-                newCommand.AddRange(Commands[cmd]);
+        //var realOutput = new string(output.Where(c => char.IsDigit(c) || c == 'A').ToArray());
+        //realOutput.Should().Be(expectedOutput);
+        result.Should().Be(expected);
+    }
 
-                skipCount += cmd.Length + 1;
-            }
+    private long GetLength(string cmd, int deepLevel, Dictionary<(string, int), long> cache)
+    {
+        if (cache.TryGetValue((cmd, deepLevel), out var r)) return r;
 
-            oldCommand = newCommand;
+        if (deepLevel == 0) return cmd.Length + 1;
+
+        var nextCommands = Commands[cmd];
+        var result = 0L;
+        var cmds = nextCommands.Split('A');
+        for (var i = 0; i < cmds.Length - 1; i++)
+        {
+            var nextCmd = cmds[i];
+            result += GetLength(nextCmd, deepLevel - 1, cache);
         }
 
-        var keyboard = InitKeyboards();
-        var output = ExecCommand(new string(oldCommand.ToArray()), keyboard);
-
-        var realOutput = new string(output.Where(c => char.IsDigit(c) || c == 'A').ToArray());
-        realOutput.Should().Be(expectedOutput);
-        oldCommand.Count.Should().Be(expected);
+        return result;
     }
 
     private static readonly Dictionary<string, string> Commands = new()
