@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Text;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace AoC_2024;
@@ -77,6 +78,108 @@ public class Task21
         }
     }
 
+    //^^^9<8vvv0>A
+    // ^<<1^^7>>9vvvA
+    // ^^<<4>5>6vvA
+    // ^3<<^^7>>9vvvA
+    
+    // 179A: <v<A>>^A<vA<A>>^AAvAA<^A>A<v<A>>^AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A
+    // 456A: <v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A
+    // 379A: <v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A
+    
+    [Test]
+    [TestCase("029A","<A^A>^^AvvvA", "<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A")]
+    [TestCase("980A","^^^A<AvvvA>A", "<v<A>>^AAAvA^A<vA<AA>>^AvAA<^A>A<v<A>A>^AAAvA<^A>A<vA>^A<A>A")]
+    [TestCase("179A","^<<A^^A>>AvvvA", "<v<A>>^A<vA<A>>^AAvAA<^A>A<v<A>>^AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A")]
+    [TestCase("456A","^^<<A>A>AvvA", "<v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A")]
+    [TestCase("379A","^A<<^^A>>AvvvA", "<v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A")]
+    
+    //^<<1^4>vv0>A
+    // ^<<1^>>6^9vvvA
+    // ^<<1^^7>vvv0>A
+    // ^^<5v2^^8vvv>A
+    // ^3^<<4>vv0>A
+    
+    [TestCase("140A","^<<A^A>vvA>A", "")]//70 !!! 9800
+    [TestCase("140A","^<<A^Av>vA>A", "")]//76
+    
+    [TestCase("169A","^<<A^>>A^AvvvA", "")]//76 !!! 12844
+    [TestCase("169A","^<<A>^>A^AvvvA", "")]//82
+    [TestCase("169A","^<<A>>^A^AvvvA", "")]//76
+    
+    [TestCase("170A","^<<A^^A>vvvA>A", "")]//72 !!! 12240
+    [TestCase("170A","^<<A^^Avv>vA>A", "")]//78
+    [TestCase("170A","^<<A^^Av>vvA>A", "")]//78
+    
+    [TestCase("528A","^^<AvA^^Avvv>A", "")]//74
+    [TestCase("528A","<^^AvA^^Avvv>A", "")]//70 !!! 36960
+    [TestCase("528A","<^^AvA^^A>vvvA", "")]//74
+    [TestCase("528A","<^^AvA^^Av>vvA", "")]//80
+    [TestCase("528A","<^^AvA^^Avv>vA", "")]//80
+    [TestCase("528A","^^<AvA^^Avv>vA", "")]//84
+    
+    [TestCase("340A","^A^<<A>vvA>A", "")]//70 !!! 23800
+    //
+    public void Command(string expectedOutput, string command, string expected)
+    {
+        var oldCommand = command;
+        for (var i = 0; i < 2; ++i)
+        {
+            var newCommand = new StringBuilder();
+
+            var commands = oldCommand.Split('A');
+            for (var ci = 0; ci < commands.Length - 1; ci++)
+            {
+                var cmd = commands[ci];
+                newCommand.Append(Commands[cmd]);
+            }
+
+            oldCommand = newCommand.ToString();
+        }
+
+        var keyboard = InitKeyboards();
+        var output = ExecCommand(oldCommand, keyboard);
+
+        var realOutput = new string(output.Where(c => char.IsDigit(c) || c == 'A').ToArray());
+        realOutput.Should().Be(expectedOutput);
+        oldCommand.Length.Should().Be(expected.Length);
+    }
+
+    private static readonly Dictionary<string, string> Commands = new()
+    {
+        { "", "A" },
+        { "<", "v<<A>>^A" },
+        { "v", "v<A>^A" },
+        { "^", "<A>A" },
+        { ">", "vA^A" },
+        { "<<", "v<<AA>>^A" },
+        { ">v", "vA<A>^A" },
+        { ">>", "vAA^A" },
+        { ">^", "vA<^A>A" },
+        { "v<", "v<A<A>>^A" },
+        { "<^", "v<<A>^A>A" },
+        { "v<<", "v<A<AA>>^A" },
+        { "^<<", "<Av<AA>>^A" },
+        { ">>^", "vAA<^A>A" },
+        { "vvv", "v<AAA>^A" },
+        { ">^^", "vA<^AA>A" },
+        { "^^^", "<AAA>A" },
+        { "^^", "<AA>A" },
+        { "vv", "v<AA>^A" },
+        { "<<^^", "v<<AA>^AA>A" },
+        { "^^<<", "<AAv<AA>>^A" },
+        { ">vv", "vA<AA>^A" },
+        { "v>v", "v<A>A<A>^A" },
+        { "^>>", "<A>vAA^A" },
+        { ">^>", "vA<^A>vA^A" },
+        { "^^<", "<AAv<A>>^A" },
+        { "vvv>", "v<AAA>A^A" },
+        { "<^^", "v<<A>^AA>A" },
+        { ">vvv", "vA<AAA>^A" },
+        { "vv>v", "v<AA>A<A>^A" },
+        { "v>vv", "v<A>A<AA>^A" },
+    };
+    
     private static IEnumerable<string> GetAllCommands()
     {
         var verticals = new[] { "", "v", "^" };
@@ -118,7 +221,6 @@ public class Task21
     [TestCase("<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A", "029A")]
     [TestCase("v<A<AA>>^AvAA^<A>A<v<A>>^AvA^A<v<A>>^AAvA<A>^A<A>Av<A<A>>^AAA<A>vA^A", "029A")]
     [TestCase("<vA<AA>>^AvAA<^A>A<vA<A>^A>AvA^A", "02")]
-    //[TestCase("<vA<AA>>^AvAA<^A>A<vA<A>^A>AvA^A<vA<A>^A>AAvA<A>^A<A>A<vA<A>>^AAAvA<^A>A", "029A")]
     [TestCase("<v<A>>^AAAvA^A<vA<AA>>^AvAA<^A>A<v<A>A>^AAAvA<^A>A<vA>^A<A>A", "980A")]
     [TestCase("<v<A>>^A<vA<A>>^AAvAA<^A>A<v<A>>^AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A", "179A")]
     [TestCase("<v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A", "456A")]
