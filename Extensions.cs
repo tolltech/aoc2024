@@ -263,6 +263,11 @@ public static class Extensions
 
         throw new Exception("Value not found");
     }
+
+    public static long ToLong(this int src)
+    {
+        return src;
+    }
 }
 
 [DebuggerDisplay("X:{X},Y:{Y}")]
