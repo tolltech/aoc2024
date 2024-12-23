@@ -133,19 +133,99 @@ public class Task21_2
         for (var ci = 0; ci < commands.Length - 1; ci++)
         {
             var cmd = commands[ci];
-            result += GetLength(cmd, 2, cache);
+            result += GetLength(cmd, 25, cache);
         }
-        //var keyboard = InitKeyboards();
-        //var output = ExecCommand(new string(oldCommand.ToArray()), keyboard);
 
-        //var realOutput = new string(output.Where(c => char.IsDigit(c) || c == 'A').ToArray());
-        //realOutput.Should().Be(expectedOutput);
         result.Should().Be(expected);
+    }
+    
+    [Test]
+    [TestCase(2, 94284)]
+    [TestCase(25, 0)]
+    public void SuperCommand(int deep, long expected)
+    {
+        var input = new[]
+        {
+            ("140A", "^<<A^A>vvA>A"),//^<<A^A>vvA>A
+            ("140A", "^<<A^Av>vA>A"),
+            ("140A", "<^<A^Av>vA>A"),
+            ("140A", "<^<A^A>vvA>A"),
+            
+            ("169A", "^<<A^>>A^AvvvA"),//^<<A^>>A^AvvvA
+            ("169A", "^<<A>^>A^AvvvA"),
+            ("169A", "^<<A>>^A^AvvvA"),
+            ("169A", "<^<A^>>A^AvvvA"),
+            ("169A", "<^<A>^>A^AvvvA"),
+            ("169A", "<^<A>>^A^AvvvA"),
+            
+            ("170A", "^<<A^^A>vvvA>A"),//^<<A^^A>vvvA>A
+            ("170A", "^<<A^^Avv>vA>A"),
+            ("170A", "^<<A^^Av>vvA>A"),
+            ("170A", "<^<A^^A>vvvA>A"),
+            ("170A", "<^<A^^Avv>vA>A"),
+            ("170A", "<^<A^^Av>vvA>A"),
+            
+            ("528A", "<^^AvA^^Avvv>A"),//<^^AvA^^Avvv>A
+            ("528A", "<^^AvA^^A>vvvA"),
+            ("528A", "<^^AvA^^Av>vvA"),
+            ("528A", "<^^AvA^^Avv>vA"),
+            ("528A", "^^<AvA^^Avvv>A"),
+            ("528A", "^^<AvA^^A>vvvA"),
+            ("528A", "^^<AvA^^Av>vvA"),
+            ("528A", "^^<AvA^^Avv>vA"),
+            ("528A", "^<^AvA^^Avvv>A"),
+            ("528A", "^<^AvA^^A>vvvA"),
+            ("528A", "^<^AvA^^Av>vvA"),
+            ("528A", "^<^AvA^^Avv>vA"),
+            
+            ("340A", "^A^<<A>vvA>A"),
+            ("340A", "^A<<^A>vvA>A"),//^A<<^A>vvA>A
+            ("340A", "^A<^<A>vvA>A"),
+            ("340A", "^A^<<Av>vA>A"),
+            ("340A", "^A<<^Av>vA>A"),
+            ("340A", "^A<^<Av>vA>A"),
+        };
+
+        var resultDict = new Dictionary<string, long>();
+        var minCommands = new Dictionary<string, string>();
+        
+        var cache = new Dictionary<(string, int), long>();
+        
+        foreach (var tuple in input)
+        {
+            var commands = tuple.Item2.Split('A');
+
+            var result = 0L;
+            for (var ci = 0; ci < commands.Length - 1; ci++)
+            {
+                var cmd = commands[ci];
+                result += GetLength(cmd, deep, cache);
+            }
+
+            if (!resultDict.TryGetValue(tuple.Item1, out var val) || val > result)
+            {
+                resultDict[tuple.Item1] = result;
+                minCommands[tuple.Item1] = tuple.Item2;
+            }
+        }
+
+        var realResult = 0L;
+
+        foreach (var d in resultDict)
+        {
+            var x = long.Parse(new string(d.Key.Where(char.IsDigit).ToArray()));
+            realResult += x * d.Value;
+        }
+
+        realResult.Should().Be(expected);
     }
 
     private long GetLength(string cmd, int deepLevel, Dictionary<(string, int), long> cache)
     {
-        if (cache.TryGetValue((cmd, deepLevel), out var r)) return r;
+        if (cache.TryGetValue((cmd, deepLevel), out var r))
+        {
+            return r;
+        }
 
         if (deepLevel == 0) return cmd.Length + 1;
 
@@ -157,6 +237,8 @@ public class Task21_2
             var nextCmd = cmds[i];
             result += GetLength(nextCmd, deepLevel - 1, cache);
         }
+        
+        cache[(cmd, deepLevel)] = result;
 
         return result;
     }
@@ -196,6 +278,7 @@ public class Task21_2
         { "vv>v", "v<AA>A<A>^A" },
         { "v>vv", "v<A>A<AA>^A" },
         { "<^<", "v<<A>^Av<A>>^A" },
+        { "^<^", "<Av<A>^A>A" },
     };
     
     private static IEnumerable<string> GetAllCommands()
