@@ -88,11 +88,11 @@ public class Task21_2
     // 379A: <v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A
     
     [Test]
-    [TestCase("029A","<A^A>^^AvvvA", "<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A")]
-    [TestCase("980A","^^^A<AvvvA>A", "<v<A>>^AAAvA^A<vA<AA>>^AvAA<^A>A<v<A>A>^AAAvA<^A>A<vA>^A<A>A")]
-    [TestCase("179A","^<<A^^A>>AvvvA", "<v<A>>^A<vA<A>>^AAvAA<^A>A<v<A>>^AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A")]
-    [TestCase("456A","^^<<A>A>AvvA", "<v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A")]
-    [TestCase("379A","^A<<^^A>>AvvvA", "<v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A")]
+    // [TestCase("029A","<A^A>^^AvvvA", "<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A")]
+    // [TestCase("980A","^^^A<AvvvA>A", "<v<A>>^AAAvA^A<vA<AA>>^AvAA<^A>A<v<A>A>^AAAvA<^A>A<vA>^A<A>A")]
+    // [TestCase("179A","^<<A^^A>>AvvvA", "<v<A>>^A<vA<A>>^AAvAA<^A>A<v<A>>^AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A")]
+    // [TestCase("456A","^^<<A>A>AvvA", "<v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A")]
+    // [TestCase("379A","^A<<^^A>>AvvvA", "<v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A")]
     
     //^<<1^4>vv0>A
     // ^<<1^>>6^9vvvA
@@ -100,52 +100,57 @@ public class Task21_2
     // ^^<5v2^^8vvv>A
     // ^3^<<4>vv0>A
     
-    [TestCase("140A","^<<A^A>vvA>A", "")]//70 !!! 9800
-    [TestCase("140A","^<<A^Av>vA>A", "")]//76
+    [TestCase("140A","^<<A^A>vvA>A", 70)]//70 !!! 9800
+    [TestCase("140A","^<<A^Av>vA>A", 76)]//76
     
-    [TestCase("169A","^<<A^>>A^AvvvA", "")]//76 !!! 12844
-    [TestCase("169A","^<<A>^>A^AvvvA", "")]//82
-    [TestCase("169A","^<<A>>^A^AvvvA", "")]//76
+    [TestCase("169A","^<<A^>>A^AvvvA", 76)]//76 !!! 12844
+    [TestCase("169A","^<<A>^>A^AvvvA", 82)]//82
+    [TestCase("169A","^<<A>>^A^AvvvA", 76)]//76
     
-    [TestCase("170A","^<<A^^A>vvvA>A", "")]//72 !!! 12240
-    [TestCase("170A","^<<A^^Avv>vA>A", "")]//78
-    [TestCase("170A","^<<A^^Av>vvA>A", "")]//78
+    [TestCase("170A","^<<A^^A>vvvA>A", 72)]//72 !!! 12240
+    [TestCase("170A","^<<A^^Avv>vA>A", 78)]//78
+    [TestCase("170A","^<<A^^Av>vvA>A", 78)]//78
     
-    [TestCase("528A","^^<AvA^^Avvv>A", "")]//74
-    [TestCase("528A","<^^AvA^^Avvv>A", "")]//70 !!! 36960
-    [TestCase("528A","<^^AvA^^A>vvvA", "")]//74
-    [TestCase("528A","<^^AvA^^Av>vvA", "")]//80
-    [TestCase("528A","<^^AvA^^Avv>vA", "")]//80
-    [TestCase("528A","^^<AvA^^Avv>vA", "")]//84
+    [TestCase("528A","^^<AvA^^Avvv>A", 74)]//74
+    [TestCase("528A","<^^AvA^^Avvv>A", 70)]//70 !!! 36960
+    [TestCase("528A","<^^AvA^^A>vvvA", 74)]//74
+    [TestCase("528A","<^^AvA^^Av>vvA", 80)]//80
+    [TestCase("528A","<^^AvA^^Avv>vA", 80)]//80
+    [TestCase("528A","^^<AvA^^Avv>vA", 84)]//84
     
-    [TestCase("340A","^A^<<A>vvA>A", "")]//70 
-    [TestCase("340A","^A<<^A>vvA>A", "")]// 66 !!! 22440
-    [TestCase("340A","^A<^<A>vvA>A", "")]// 78
-    [TestCase("340A","^A^<<Av>vA>A", "")]//76
+    [TestCase("340A","^A^<<A>vvA>A", 70)]//70 
+    [TestCase("340A","^A<<^A>vvA>A", 66)]// 66 !!! 22440
+    [TestCase("340A","^A<^<A>vvA>A", 78)]// 78
+    [TestCase("340A","^A^<<Av>vA>A", 76)]//76
     //94284
-    public void Command(string expectedOutput, string command, string expected)
+    [TestCase("1","^<<A", 0)]//70 !!! 9800
+    public void Command(string expectedOutput, string command, int expected)
     {
-        var oldCommand = command;
-        for (var i = 0; i < 2; ++i)
+        var oldCommand = command.ToList();
+        for (var i = 0; i < 25; ++i)
         {
-            var newCommand = new StringBuilder();
+            var newCommand = new List<char>(oldCommand.Count);
 
-            var commands = oldCommand.Split('A');
-            for (var ci = 0; ci < commands.Length - 1; ci++)
+            var skipCount = 0;
+            while (skipCount < oldCommand.Count)
             {
-                var cmd = commands[ci];
-                newCommand.Append(Commands[cmd]);
+                var cmd = new string(oldCommand.Skip(skipCount).TakeWhile(x => x != 'A').ToArray());
+                if (cmd.Length == 0) cmd = "";
+                
+                newCommand.AddRange(Commands[cmd]);
+
+                skipCount += cmd.Length + 1;
             }
 
-            oldCommand = newCommand.ToString();
+            oldCommand = newCommand;
         }
 
         var keyboard = InitKeyboards();
-        var output = ExecCommand(oldCommand, keyboard);
+        var output = ExecCommand(new string(oldCommand.ToArray()), keyboard);
 
         var realOutput = new string(output.Where(c => char.IsDigit(c) || c == 'A').ToArray());
         realOutput.Should().Be(expectedOutput);
-        oldCommand.Length.Should().Be(expected.Length);
+        oldCommand.Count.Should().Be(expected);
     }
 
     private static readonly Dictionary<string, string> Commands = new()
