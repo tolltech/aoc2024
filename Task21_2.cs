@@ -142,16 +142,26 @@ public class Task21_2
     [Test]
     [TestCase(2, 94284)]
     [TestCase(25, 0)]
-    public void SuperCommand(int deep, long expected)
+    [TestCase(2, 126384, false)]
+    public void SuperCommand(int deep, long expected, bool prod = true)
     {
-        var input = new[]
-        {
-            ("140A", "^<<A^A>vvA>A"),//^<<A^A>vvA>A
-            ("169A", "^<<A^>>A^AvvvA"),//^<<A^>>A^AvvvA
-            ("170A", "^<<A^^A>vvvA>A"),//^<<A^^A>vvvA>A
-            ("528A", "<^^AvA^^Avvv>A"),//<^^AvA^^Avvv>A
-            ("340A", "^A^<<A>vvA>A"),
-        };
+        var input = prod
+            ? new[]
+            {
+                ("140A", "^<<A^A>vvA>A"), //^<<A^A>vvA>A
+                ("169A", "^<<A^>>A^AvvvA"), //^<<A^>>A^AvvvA
+                ("170A", "^<<A^^A>vvvA>A"), //^<<A^^A>vvvA>A
+                ("528A", "<^^AvA^^Avvv>A"), //<^^AvA^^Avvv>A
+                ("340A", "^A^<<A>vvA>A"),
+            }
+            : new[]
+            {
+                ("029A", "<A^A^^>AvvvA"), 
+                ("980A", "^^^A<AvvvA>A"), 
+                ("179A", "^<<A^^A>>AvvvA"), 
+                ("456A", "^^<<A>A>AvvA"), 
+                ("379A", "^A^^<<A>>AvvvA"),
+            };
 
         input = input.SelectMany(Mutate).ToArray();
 
@@ -188,6 +198,8 @@ public class Task21_2
 
         realResult.Should().Be(expected);
     }
+    
+    
 
     //("140A", "^<<A^A>vvA>A"),//^<<A^A>vvA>A
     // ("169A", "^<<A^>>A^AvvvA"),//^<<A^>>A^AvvvA
@@ -241,7 +253,7 @@ public class Task21_2
             return r;
         }
 
-        if (deepLevel == 0) return cmd.Length + 1;
+        if (deepLevel == 0) return cmd.Length + 1L;
 
         var nextCommands = Commands[cmd];
         var result = 0L;
@@ -293,6 +305,12 @@ public class Task21_2
         { "v>vv", "v<A>A<AA>^A" },
         { "<^<", "v<<A>^Av<A>>^A" },
         { "^<^", "<Av<A>^A>A" },
+        { "^^>", "<AA>vA^A" },
+        { "^>^", "<A>vA<^A>A" },
+        { "^<^<", "<Av<A>^Av<A>>^A" },
+        { "^<<^", "<Av<AA>^A>A" },
+        { "<^^<", "v<<A>^AAv<A>>^A" },
+        { "<^<^", "v<<A>^Av<A>^A>A" },
     };
     
     private static IEnumerable<string> GetAllCommands()
