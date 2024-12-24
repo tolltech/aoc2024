@@ -268,6 +268,36 @@ public static class Extensions
     {
         return src;
     }
+
+    public static List<List<T>> Permute<T>(T[] nums)
+    {
+        var list = new List<List<T>>();
+        return DoPermute(nums, 0, nums.Length - 1, list);
+    }
+
+    public static List<List<T>> DoPermute<T>(T[] nums, int start, int end, List<List<T>> list)
+    {
+        if (start == end)
+        {
+            list.Add([..nums]);
+        }
+        else
+        {
+            for (var i = start; i <= end; i++)
+            {
+                Swap(ref nums[start], ref nums[i]);
+                DoPermute(nums, start + 1, end, list);
+                Swap(ref nums[start], ref nums[i]);
+            }
+        }
+
+        return list;
+    }
+
+    static void Swap<T>(ref T a, ref T b)
+    {
+        (a, b) = (b, a);
+    }
 }
 
 [DebuggerDisplay("X:{X},Y:{Y}")]

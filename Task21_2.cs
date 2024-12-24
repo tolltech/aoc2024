@@ -147,44 +147,13 @@ public class Task21_2
         var input = new[]
         {
             ("140A", "^<<A^A>vvA>A"),//^<<A^A>vvA>A
-            ("140A", "^<<A^Av>vA>A"),
-            ("140A", "<^<A^Av>vA>A"),
-            ("140A", "<^<A^A>vvA>A"),
-            
             ("169A", "^<<A^>>A^AvvvA"),//^<<A^>>A^AvvvA
-            ("169A", "^<<A>^>A^AvvvA"),
-            ("169A", "^<<A>>^A^AvvvA"),
-            ("169A", "<^<A^>>A^AvvvA"),
-            ("169A", "<^<A>^>A^AvvvA"),
-            ("169A", "<^<A>>^A^AvvvA"),
-            
             ("170A", "^<<A^^A>vvvA>A"),//^<<A^^A>vvvA>A
-            ("170A", "^<<A^^Avv>vA>A"),
-            ("170A", "^<<A^^Av>vvA>A"),
-            ("170A", "<^<A^^A>vvvA>A"),
-            ("170A", "<^<A^^Avv>vA>A"),
-            ("170A", "<^<A^^Av>vvA>A"),
-            
             ("528A", "<^^AvA^^Avvv>A"),//<^^AvA^^Avvv>A
-            ("528A", "<^^AvA^^A>vvvA"),
-            ("528A", "<^^AvA^^Av>vvA"),
-            ("528A", "<^^AvA^^Avv>vA"),
-            ("528A", "^^<AvA^^Avvv>A"),
-            ("528A", "^^<AvA^^A>vvvA"),
-            ("528A", "^^<AvA^^Av>vvA"),
-            ("528A", "^^<AvA^^Avv>vA"),
-            ("528A", "^<^AvA^^Avvv>A"),
-            ("528A", "^<^AvA^^A>vvvA"),
-            ("528A", "^<^AvA^^Av>vvA"),
-            ("528A", "^<^AvA^^Avv>vA"),
-            
             ("340A", "^A^<<A>vvA>A"),
-            ("340A", "^A<<^A>vvA>A"),//^A<<^A>vvA>A
-            ("340A", "^A<^<A>vvA>A"),
-            ("340A", "^A^<<Av>vA>A"),
-            ("340A", "^A<<^Av>vA>A"),
-            ("340A", "^A<^<Av>vA>A"),
         };
+
+        input = input.SelectMany(Mutate).ToArray();
 
         var resultDict = new Dictionary<string, long>();
         var minCommands = new Dictionary<string, string>();
@@ -218,6 +187,51 @@ public class Task21_2
         }
 
         realResult.Should().Be(expected);
+    }
+
+    //("140A", "^<<A^A>vvA>A"),//^<<A^A>vvA>A
+    // ("169A", "^<<A^>>A^AvvvA"),//^<<A^>>A^AvvvA
+    // ("170A", "^<<A^^A>vvvA>A"),//^<<A^^A>vvvA>A
+    // ("528A", "<^^AvA^^Avvv>A"),//<^^AvA^^Avvv>A
+    // ("340A", "^A^<<A>vvA>A"),
+    private IEnumerable<(string, string)> Mutate((string Number, string Buttons) command)
+    {
+        var commands = command.Buttons.SplitEmpty("A");
+        var newCommands = new List<List<string>>();
+        for (var i = 0; i < commands.Length; i++)
+        {
+            var cmd = commands[i];
+            var position = i == 0 ? 'A' : command.Number[i - 1];
+            var target = command.Number[i];
+
+            var cmds = Extensions.Permute(cmd.ToArray()).Select(x => new string(x.ToArray())).Distinct().ToArray();
+
+            var mutated = new List<string>();
+            foreach (var mutateCmd in cmds)
+            {
+                var keyboard = new NumericKeyboard();
+                keyboard.SetPosition(position);
+
+                foreach (var c in mutateCmd)
+                {
+                    var r = keyboard.Exec(c);
+                    if (r == 'E') break;
+                }
+                
+                if (keyboard.GetPosition() == target)
+                    mutated.Add(mutateCmd);   
+            }
+
+            newCommands.Add(mutated);
+        }
+
+        foreach (var c0 in newCommands[0])
+        foreach (var c1 in newCommands[1])
+        foreach (var c2 in newCommands[2])
+        foreach (var c3 in newCommands[3])
+        {
+           yield return (command.Number, $"{c0}A{c1}A{c2}A{c3}A");
+        }
     }
 
     private long GetLength(string cmd, int deepLevel, Dictionary<(string, int), long> cache)
@@ -335,6 +349,23 @@ public class Task21_2
         new string(result.Where(c => char.IsDigit(c) || c == 'A').ToArray()).Should().Be(expected);
     }
 
+    [TestCase("^>>>", @"^>>>
+>^>>
+>>^>
+>>>^")]
+    [TestCase("^>^>", @"^>^>
+>^^>
+>>^^
+>^>^
+^^>>
+^>>^")]
+    public void TestPermute(string str, string expected)
+    {
+        var mutations = Extensions.Permute(str.ToArray());
+        var actual = mutations.Select(x => new string(x.ToArray())).Distinct().ToArray();
+        actual.OrderBy(x => x).ToArray().Should().BeEquivalentTo(expected.SplitLines().OrderBy(x => x).ToArray());
+    }
+    
     private static string ExecCommand(string command, Keyboard keyboard)
     {
         var result = string.Empty;
@@ -379,6 +410,17 @@ public class Task21_2
         ];
 
         private Point Position { get; set; } = (3, 2);
+
+        public void SetPosition(char c)
+        {
+            var point = Map.Find(c);
+            Position = point;
+        }
+        
+        public char GetPosition()
+        {
+            return Map.Get(Position);
+        }
 
         public char Exec(char c)
         {
